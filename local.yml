@@ -10,5 +10,5 @@
         - install
         - core
   tasks:
-    - include_tasks: tasks/core-setup.yml
-    - include_tasks: tasks/doom-emacs-setup.yml
+    - import_tasks: tasks/core-setup.yml
+    - import_tasks: tasks/doom-emacs-setup.yml

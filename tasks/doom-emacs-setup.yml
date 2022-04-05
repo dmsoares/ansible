@@ -1,50 +1,40 @@
-- name: Install prerequisites 1
-  become: true
-  apt:
-    name:
-      [
-        "curl",
-        "zip",
-        "unzip",
-        "tar",
-        "git",
-        "ripgrep",
-        "build-essential",
-        "texinfo",
-        "libx11-dev",
-        "libxpm-dev",
-        "libjpeg-dev",
-        "libpng-dev",
-        "libgif-dev",
-        "libtiff-dev",
-        "libgtk2.0-dev",
-        "libncurses-dev",
-        "libgnutls28-dev",
-        "libjansson4",
-        "libjansson-dev",
-      ]
+- name: Create ./temp-downloads if it does not exist
+  ansible.builtin.file:
+    path: ./temp-downloads
+    state: directory
+    mode: "0755"
   tags:
-    - core
     - emacs
 
 - name: Download Emacs
   get_url:
     url: http://ftp.gnu.org/gnu/emacs/emacs-27.2.tar.gz
-    dest: ./emacs
+    dest: ./temp-downloads/emacs-27.2.tar.gz
     mode: "0440"
   tags:
     - emacs
 
 - name: Unarchive Emacs
-  ansible.builtin.unarchive:
-    src: ./emacs
-    dest: .
+  shell: tar xzf ./temp-downloads/emacs-27.2.tar.gz -C ./temp-downloads/
   tags:
-    - install
     - emacs
 
 - name: Install Emacs
-  shell: cd ./emacs-27.2 && ./configure && make && make install
+  shell: cd ./temp-downloads/emacs-27.2 && ./configure && make && make install
   tags:
-    - install
     - emacs
+
+- name: Download Doom
+  ansible.builtin.git:
+    repo: "https://github.com/hlissner/doom-emacs"
+    dest: ~/.emacs.d
+    depth: 1
+  tags:
+    - emacs
+    - doom
+
+- name: Manually install Doom
+  shell: chmod +x ./doom-manual-install.sh && ./doom-manual-install.sh
+  tags:
+    - emacs
+    - doom
